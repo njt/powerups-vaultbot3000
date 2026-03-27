@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export PATH=\"$HOME/bin:$PATH\")",
+      "Bash(notesmd --version)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}

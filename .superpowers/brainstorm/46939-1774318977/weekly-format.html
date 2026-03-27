@@ -1,0 +1,75 @@
+<h2>Weekly Digest Format</h2>
+<p class="subtitle">What the scheduled agent writes to Weekly/YYYY-WNN.md</p>
+
+<div class="mockup">
+  <div class="mockup-header">Weekly/2026-W12.md</div>
+  <div class="mockup-body" style="font-size: 13px; line-height: 1.7;">
+    <div style="color: #565f89; font-family: monospace; font-size: 12px;">---</div>
+    <div style="font-family: monospace; font-size: 12px;"><span style="color: #7aa2f7;">week:</span> <span style="color: #9ece6a;">2026-W12</span></div>
+    <div style="font-family: monospace; font-size: 12px;"><span style="color: #7aa2f7;">dates:</span> <span style="color: #9ece6a;">2026-03-16 to 2026-03-22</span></div>
+    <div style="font-family: monospace; font-size: 12px;"><span style="color: #7aa2f7;">session_count:</span> <span style="color: #e0af68;">6</span></div>
+    <div style="font-family: monospace; font-size: 12px;"><span style="color: #7aa2f7;">active_threads:</span></div>
+    <div style="font-family: monospace; font-size: 12px; padding-left: 16px;"><span style="color: #bb9af7;">- "[[Meeting Transcription Pipeline]]"</span></div>
+    <div style="font-family: monospace; font-size: 12px; padding-left: 16px;"><span style="color: #bb9af7;">- "[[Obsidian Agent Infrastructure]]"</span></div>
+    <div style="font-family: monospace; font-size: 12px; padding-left: 16px;"><span style="color: #bb9af7;">- "[[Ontempo Warehouse Bugs]]"</span></div>
+    <div style="color: #565f89; font-family: monospace; font-size: 12px;">---</div>
+
+    <div style="color: #7aa2f7; font-size: 18px; font-weight: bold; margin: 16px 0 8px;">Week 12: Mar 16–22</div>
+
+    <div style="color: #bb9af7; font-weight: bold; margin-top: 16px;">## Overview</div>
+    <div style="color: #a9b1d6;">Heavy infrastructure week. Set up the Obsidian vault and agent tooling (notesmd, Agency plugin), then pivoted to a meaty transcription pipeline build. One Ontempo bug investigation. 6 sessions across 4 projects.</div>
+
+    <div style="color: #bb9af7; font-weight: bold; margin-top: 16px;">## Thread Progress</div>
+    <div style="color: #a9b1d6;">
+      <div style="margin-bottom: 8px;"><strong style="color: #9ece6a;">Obsidian Agent Infrastructure</strong> — vault structure created, notesmd working, journals flowing. <span style="color: #565f89;">3 sessions</span></div>
+      <div style="margin-bottom: 8px;"><strong style="color: #e0af68;">Meeting Transcription Pipeline</strong> — end-to-end pipeline working with caveats (long doc pass, thinking mode). <span style="color: #565f89;">1 long session</span></div>
+      <div style="margin-bottom: 8px;"><strong style="color: #7aa2f7;">Ontempo Warehouse Bugs</strong> — RFID barcode issue identified, audit recommended. <span style="color: #565f89;">1 session</span></div>
+      <div><strong style="color: #565f89;">Skill Safety Review</strong> — started, unresolved. <span style="color: #565f89;">1 session</span></div>
+    </div>
+
+    <div style="color: #bb9af7; font-weight: bold; margin-top: 16px;">## Recurring Patterns</div>
+    <div style="color: #f7768e;">
+      <div>- Local LLM configuration keeps requiring debugging (model pulling, timeouts, thinking modes)</div>
+      <div>- Tools installed in ~/Downloads/ rather than proper locations — cleanup needed</div>
+    </div>
+
+    <div style="color: #bb9af7; font-weight: bold; margin-top: 16px;">## Improvement Proposals</div>
+    <div style="color: #e0af68;">
+      <div style="margin-bottom: 6px;">- <strong>Create /transcribe skill</strong> — the pipeline is reusable but currently scattered scripts <span style="color: #565f89;">(surfaced 1x)</span></div>
+      <div style="margin-bottom: 6px;">- <strong>Ollama pre-flight check</strong> — verify model is pulled and responsive before long operations <span style="color: #565f89;">(surfaced 1x)</span></div>
+      <div style="margin-bottom: 6px;">- <strong>Skill review sandbox</strong> — the meta-problem of reviewing skills safely remains open <span style="color: #565f89;">(surfaced 1x)</span></div>
+    </div>
+
+    <div style="color: #bb9af7; font-weight: bold; margin-top: 16px;">## Sessions This Week</div>
+    <div style="color: #a9b1d6; font-size: 12.5px;">
+      <div>- [[2026-03-17 - Superpowers Plugin Installation]]</div>
+      <div>- [[2026-03-20 - Obsidian-to-PDF Typst Backend]]</div>
+      <div>- [[2026-03-21 - Obsidian Vault Setup & CLI Tools]]</div>
+      <div>- [[2026-03-22a - Skill Safety Review]]</div>
+      <div>- [[2026-03-22b - OpenOats Ollama Meeting Transcription]]</div>
+      <div>- [[2026-03-23 - Ontempo Warehouse RFID Barcode Bug]]</div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 24px;">
+  <h3>Design Choices</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div style="background: rgba(122, 162, 247, 0.1); border: 1px solid rgba(122, 162, 247, 0.3); border-radius: 8px; padding: 16px;">
+      <div style="font-weight: bold; color: #7aa2f7; margin-bottom: 6px;">Recurring Patterns</div>
+      <div style="font-size: 13px; color: #a9b1d6;">The highest-value section. Spots things you wouldn't notice in individual sessions — repeated friction, habits, tool gaps.</div>
+    </div>
+    <div style="background: rgba(224, 175, 104, 0.1); border: 1px solid rgba(224, 175, 104, 0.3); border-radius: 8px; padding: 16px;">
+      <div style="font-weight: bold; color: #e0af68; margin-bottom: 6px;">Improvement Proposals with frequency</div>
+      <div style="font-size: 13px; color: #a9b1d6;">Aggregates suggestions from session journals. An idea that surfaces 3x across weeks is screaming to be acted on.</div>
+    </div>
+    <div style="background: rgba(187, 154, 247, 0.1); border: 1px solid rgba(187, 154, 247, 0.3); border-radius: 8px; padding: 16px;">
+      <div style="font-weight: bold; color: #bb9af7; margin-bottom: 6px;">Thread Progress as narrative</div>
+      <div style="font-size: 13px; color: #a9b1d6;">Not just a list of sessions — one-line narrative per thread. "How's my week going?" at a glance.</div>
+    </div>
+    <div style="background: rgba(158, 206, 106, 0.1); border: 1px solid rgba(158, 206, 106, 0.3); border-radius: 8px; padding: 16px;">
+      <div style="font-weight: bold; color: #9ece6a; margin-bottom: 6px;">Voice: yours, not a report</div>
+      <div style="font-size: 13px; color: #a9b1d6;">The skill will include voice calibration from your actual writing samples so journals sound like you, not an AI summary.</div>
+    </div>
+  </div>
+</div>
