@@ -1,5 +1,0 @@
-{"type":"server-started","port":58267,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:58267","screen_dir":"/Users/gnat/Source/Personal/vaultbot3000/.superpowers/brainstorm/46939-1774318977"}
-{"type":"screen-added","file":"/Users/gnat/Source/Personal/vaultbot3000/.superpowers/brainstorm/46939-1774318977/weekly-format.html"}
-{"type":"screen-added","file":"/Users/gnat/Source/Personal/vaultbot3000/.superpowers/brainstorm/46939-1774318977/voice.html"}
-{"type":"screen-added","file":"/Users/gnat/Source/Personal/vaultbot3000/.superpowers/brainstorm/46939-1774318977/waiting.html"}
-{"type":"server-stopped","reason":"idle timeout"}
