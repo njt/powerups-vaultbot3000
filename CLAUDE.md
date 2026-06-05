@@ -35,7 +35,7 @@ User invokes powerups-vaultbot3000:reflect → reads Sessions/ → updates Threa
 Sunday 5am cron → reflect weekly → writes Weekly/*.md
 ```
 
-All writes go through `notesmd` CLI. The Obsidian vault path is read from the `OBSIDIAN_VAULT` environment variable (set in `~/.claude/settings.json` under `env`), defaulting to `~/obsidian` if unset. Skills resolve the vault path at the start of every invocation:
+Vault writes use `notesmd` CLI if available, otherwise write files directly. The Obsidian vault path is read from the `OBSIDIAN_VAULT` environment variable (set in `~/.claude/settings.json` under `env`), defaulting to `~/obsidian` if unset. Skills resolve the vault path at the start of every invocation:
 
 ```bash
 VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
@@ -52,15 +52,15 @@ $OBSIDIAN_VAULT/Agent Journals/
 
 ## Dependencies
 
-- `notesmd` CLI — all Obsidian vault writes go through this
 - `jq` — transcript extraction (inlined in skill, also available as standalone script)
+- `python3` — session entrypoint detection in hook scripts
 - `claude` CLI — the hook launches a background claude process
-- `nat-write` skill — all journal/reflection prose must follow this voice skill
+- `notesmd` CLI — optional; skills use it for Obsidian vault writes if available, fall back to direct file writes if not
 
 ## Key Design Decisions
 
 - **Every session gets a journal.** Trivial sessions get short entries. The reflection layer filters signal from noise.
-- **Threads are intent-based, not path-based.** "Meeting Transcription Pipeline" not "/Users/gnat/Source".
+- **Threads are intent-based, not path-based.** "Meeting Transcription Pipeline" not "/Users/someone/Source".
 - **Thread names are proposed by the journal skill in session frontmatter.** Users can edit; the next reflect pass regroups.
 - **Only interactive sessions get journaled.** The hook checks the JSONL `entrypoint` field and only journals `cli` and `claude-desktop` sessions. Subagents (`sdk-cli`) and `--print` invocations are skipped — they're 90%+ of sessions but low-signal for journaling. The catch-up script applies the same filter.
 - **Recursion guard via env var.** `AGENT_JOURNAL_SESSION=1` prevents the journal-writing session from journaling itself. The hook sets this; `--print` sessions DO fire SessionEnd hooks.
@@ -70,7 +70,7 @@ $OBSIDIAN_VAULT/Agent Journals/
 - **`find` not `ls` for JSONL discovery.** The `ls -t ~/.claude/projects/*/*.jsonl` glob fails with "argument list too long" at ~14k session files. Hook uses `find | xargs stat | sort` instead.
 - **Weekly catch-up backfills missed journals.** Hook can miss sessions (reboots, crashes, hook failures). The catch-up script runs Sunday 3am, finds unjournaled sessions from the past 7 days, and journals them with throttled concurrency (max 3).
 - **Decisions are append-only in thread docs.** Key Decisions section grows; old decisions are never removed.
-- **Voice: nat-write skill required.** No AI summary voice. Direct, concrete, parenthetical asides, honest about mess.
+- **Voice: direct, not AI summary.** Skills use a custom voice skill if the user has one, otherwise default to a direct, concrete style. No AI summary voice.
 - **Transcript extraction is inlined.** The jq pipeline lives directly in the journal skill so there's no dependency on script paths at runtime. The standalone script is kept for manual use.
 
 ## Debugging

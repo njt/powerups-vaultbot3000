@@ -17,7 +17,8 @@ This plugin writes a journal entry automatically when each session ends, then gi
 | `hooks/hooks.json` | Plugin hook config — fires `journal-hook.sh` on SessionEnd |
 | `scripts/journal-hook.sh` | SessionEnd hook — launches a background Claude process to journal the ended session |
 | `scripts/extract-transcript.sh` | Standalone transcript extractor (jq pipeline also inlined in the journal skill) |
-| `scripts/install-cron.sh` | Installs weekly digest cron job (Sunday 5am) |
+| `scripts/journal-catchup.sh` | Weekly catch-up — backfills missed sessions from the past 7 days |
+| `scripts/install-cron.sh` | Installs weekly cron jobs (catchup Sunday 3am, digest Sunday 5am) |
 
 ## How It Works
 
@@ -25,7 +26,9 @@ This plugin writes a journal entry automatically when each session ends, then gi
 Session ends → hook fires → background Claude runs /journal → Session journal written to Obsidian
 ```
 
-The hook launches a new `claude --print` process that reads the just-ended session's transcript, summarizes it, and writes a structured journal entry via `notesmd` CLI. A recursion guard (`AGENT_JOURNAL_SESSION=1` env var) prevents the journal-writing session from journaling itself.
+The hook launches a new `claude --print` process that reads the just-ended session's transcript, summarizes it, and writes a structured journal entry to your vault. Only interactive sessions (CLI and desktop) are journaled — subagents and `--print` invocations are skipped. A recursion guard (`AGENT_JOURNAL_SESSION=1` env var) prevents the journal-writing session from journaling itself.
+
+A weekly catch-up script (Sunday 3am cron) finds sessions missed by the hook — from reboots, crashes, or hook failures — and journals them retroactively.
 
 Thread documents and weekly digests are produced on demand:
 
@@ -50,10 +53,11 @@ macOS and Linux only. The session-end hook, cron-based weekly digest, and shell 
 ## Prerequisites
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
-- `notesmd` CLI — writes to Obsidian vault
 - `jq` — transcript extraction
-- `cron` — weekly digest scheduling
-- An Obsidian vault with an `Agent Journals` folder
+- `python3` — session type detection
+- `cron` — weekly digest and catch-up scheduling
+- An Obsidian vault (or any markdown folder)
+- `notesmd` CLI — optional; used for vault writes if available, otherwise files are written directly
 
 ## Install
 
@@ -76,12 +80,14 @@ Then set your vault path in `~/.claude/settings.json`:
 
 Set `OBSIDIAN_VAULT` to wherever your vault lives. Skills default to `~/obsidian` if unset.
 
-Create the vault folders and install the weekly digest cron job:
+Create the vault folders and install the weekly cron jobs:
 
 ```bash
 mkdir -p ~/obsidian/"Agent Journals"/{Sessions,Threads,Weekly}
 scripts/install-cron.sh
 ```
+
+If you have a custom writing voice skill, journals will pick it up automatically. Otherwise they default to a direct, concrete style.
 
 ### Manual
 
@@ -101,7 +107,7 @@ chmod +x ~/.claude/scripts/journal-hook.sh
 # Create vault folders (adjust path to your vault)
 mkdir -p ~/obsidian/"Agent Journals"/{Sessions,Threads,Weekly}
 
-# Install weekly digest cron job (Sunday 5am)
+# Install weekly cron jobs (catch-up Sunday 3am, digest Sunday 5am)
 ./scripts/install-cron.sh
 ```
 
@@ -138,11 +144,13 @@ Add the session-end hook and vault path to `~/.claude/settings.json`:
 
 **Weekly digest** — runs automatically via cron every Sunday at 5am. Can also be triggered manually with `/powerups-vaultbot3000:reflect weekly`.
 
+**Catch-up** — runs automatically via cron every Sunday at 3am. Finds unjournaled interactive sessions from the past 7 days and journals them.
+
 ## This Is Opinionated
 
 - **Every session gets a journal** — unless the skill decides the session was too trivial (a test ping, an accidental start). The de minimis check is semantic, not a line count.
-- **Threads are named by intent**, not by directory path. "Meeting Transcription Pipeline" not "/Users/gnat/Source".
-- **Voice matters.** All generated prose uses the `nat-write` skill — no AI summary voice, no corporate boilerplate. Direct, concrete, honest about mess.
+- **Threads are named by intent**, not by directory path. "Meeting Transcription Pipeline" not "/Users/someone/Source".
+- **Voice matters.** No AI summary voice, no corporate boilerplate. Direct, concrete, honest about mess. Uses your custom voice skill if you have one.
 - **Journals are structured but not rigid.** YAML frontmatter for machine queries, markdown body for human reading. Sections can be short or skipped when there's nothing to say.
 
 ## License

@@ -15,9 +15,9 @@ Read the vault path from the `OBSIDIAN_VAULT` environment variable. If not set, 
 VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
 ```
 
-## Required Sub-Skill
+## Voice
 
-**REQUIRED:** Use the nat-write skill for all prose.
+If the user has a custom writing voice skill (e.g. a `nat-write` or similar style skill), use it for all prose. Otherwise, write in a direct, concrete style: no throat-clearing, no AI summary voice, honest about mess.
 
 ## Usage
 
@@ -32,7 +32,7 @@ VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
    ls "$VAULT"/"Agent Journals"/Sessions/
    ```
 
-   For each file, read it with notesmd print "Agent Journals/Sessions/<filename without .md>".
+   Read each file to understand what happened.
 
 2. **Read existing thread documents:**
 
@@ -40,7 +40,7 @@ VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
    ls "$VAULT"/"Agent Journals"/Threads/
    ```
 
-   For each file, read it with notesmd print "Agent Journals/Threads/<filename without .md>".
+   Read each file to understand current thread state.
 
 3. **Group sessions by thread.** Parse the threads frontmatter from each session journal. Build a map of thread name → list of sessions.
 
@@ -85,7 +85,7 @@ VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
 
    User can always override by editing the frontmatter.
 
-6. **Write files** using notesmd create with --overwrite for existing threads, plain create for new ones.
+6. **Write files** to `$VAULT/Agent Journals/Threads/`. If `notesmd` is available, use `notesmd create` with `--overwrite` for existing threads, plain `create` for new ones. Otherwise, write files directly.
 
 ## Weekly Digest Process
 
@@ -129,8 +129,6 @@ When invoked with /reflect weekly:
 
 5. **Aggregate improvement ideas.** Scan the ## Improvement Ideas section of each session journal. Count how many times each idea (or similar ideas) have been proposed across all time, not just this week.
 
-6. **Write file** using notesmd create with --overwrite if updating an existing week.
+6. **Write file** to `$VAULT/Agent Journals/Weekly/`. If `notesmd` is available, use `notesmd create` with `--overwrite` if updating an existing week. Otherwise, write the file directly.
 
-## Voice
-
-ALL prose MUST follow the nat-write skill. The weekly Overview especially should sound like Nat reflecting on his week, not an AI report.
+The weekly Overview especially should sound like someone reflecting on their week, not an AI report.

@@ -15,9 +15,9 @@ Read the vault path from the `OBSIDIAN_VAULT` environment variable. If not set, 
 VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
 ```
 
-## Required Sub-Skill
+## Voice
 
-**REQUIRED:** Use the nat-write skill for all prose. The journal must sound like Nat wrote it.
+If the user has a custom writing voice skill (e.g. a `nat-write` or similar style skill), use it for all prose. Otherwise, write in a direct, concrete style: no throat-clearing, no AI summary voice ("In this session, we successfully..."), honest about mess, mark open questions with [brackets]. Parenthetical asides for editorial color are fine.
 
 ## Input
 
@@ -90,7 +90,7 @@ If no session is specified, journal the current session (read its own JSONL).
 
    If no files: no suffix. If files exist: use next letter (a, b, c...).
 
-7. **Write the journal.** Use notesmd create to write the journal entry. The content must follow this exact format:
+7. **Write the journal.** The content must follow this exact format:
 
    **Frontmatter:**
    ```yaml
@@ -132,31 +132,18 @@ If no session is specified, journal the current session (read its own JSONL).
    - Only include if there are genuine ideas (skip section if empty)
    ```
 
-8. **Write the file:**
+8. **Write the file** to `$VAULT/Agent Journals/Sessions/<filename>`. Create parent directories if needed. If `notesmd` is available, use `notesmd create "Agent Journals/Sessions/<filename>" --content "<content>"`. Otherwise, write the file directly.
 
-   ```bash
-   notesmd create "Agent Journals/Sessions/<filename>" --content "<content>"
-   ```
-
-   Where filename follows: YYYY-MM-DD - Title.md (with optional letter suffix like a, b, c for multiple sessions per day).
+   Filename follows: `YYYY-MM-DD - Title.md` (with optional letter suffix like `a`, `b`, `c` for multiple sessions per day).
 
 ## Thread Naming
 
 When proposing thread names in the threads frontmatter field:
 
-- Name the thread after the **intent**, not the directory. "Meeting Transcription Pipeline" not "/Users/gnat/Source"
+- Name the thread after the **intent**, not the directory. "Meeting Transcription Pipeline" not "/Users/someone/Source"
 - Check existing thread files in `$VAULT/Agent Journals/Threads/` and reuse names when the work is a continuation
 - A session can belong to multiple threads
 - Short sessions (quick questions, config changes) can have a generic thread like "Misc" or a specific one — use judgment
-
-## Voice
-
-ALL prose MUST follow the nat-write skill. Key reminders:
-- Direct, no throat-clearing
-- Parenthetical asides for editorial color
-- Honest about mess, mark open questions with [brackets]
-- Concrete: real names, real paths, real error messages
-- No AI summary voice ("In this session, we successfully...")
 
 ## Recursion Guard
 
