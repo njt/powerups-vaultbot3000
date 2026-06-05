@@ -17,8 +17,8 @@ if [ "${AGENT_JOURNAL_SESSION:-}" = "1" ]; then
 fi
 
 # Find the most recently modified session JSONL across all projects
-# Avoid ls|head pipe — pipefail + SIGPIPE kills the script on bash 3.2
-LATEST_JSONL=$(ls -t ~/.claude/projects/*/*.jsonl 2>/dev/null | head -1 || true)
+# Use find instead of ls glob — glob fails with "argument list too long" at ~14k files
+LATEST_JSONL=$(find ~/.claude/projects -maxdepth 2 -name "*.jsonl" -type f -print0 2>/dev/null | xargs -0 stat -f '%m %N' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2- || true)
 
 echo "  LATEST_JSONL=$LATEST_JSONL" >> "$DEBUG_LOG"
 

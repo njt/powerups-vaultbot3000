@@ -18,8 +18,9 @@ skills/
   reflect/SKILL.md            Synthesize into threads/digests (powerups-vaultbot3000:reflect)
 scripts/
   journal-hook.sh             SessionEnd hook — background claude runs the journal skill
+  journal-catchup.sh          Weekly catch-up — backfills missed sessions from the past 7 days
   extract-transcript.sh       Standalone jq transcript extractor (also inlined in journal skill)
-  install-cron.sh             Installs weekly digest cron job (Sunday 5am)
+  install-cron.sh             Installs weekly cron jobs (catchup Sunday 3am, digest Sunday 5am)
 docs/
   superpowers/specs/          Original design spec
   superpowers/plans/          Original implementation plan
@@ -29,8 +30,9 @@ docs/
 
 ```
 Session ends → SessionEnd hook → journal-hook.sh → background claude --print → journal skill → Sessions/*.md
+Sunday 3am cron → journal-catchup.sh → finds unjournaled sessions from past 7 days → journals them (max 3 concurrent)
 User invokes powerups-vaultbot3000:reflect → reads Sessions/ → updates Threads/*.md
-Scheduled agent (Sunday 5am cron) → reflect weekly → writes Weekly/*.md
+Sunday 5am cron → reflect weekly → writes Weekly/*.md
 ```
 
 All writes go through `notesmd` CLI. The Obsidian vault path is read from the `OBSIDIAN_VAULT` environment variable (set in `~/.claude/settings.json` under `env`), defaulting to `~/obsidian` if unset. Skills resolve the vault path at the start of every invocation:
@@ -62,6 +64,8 @@ $OBSIDIAN_VAULT/Agent Journals/
 - **Thread names are proposed by the journal skill in session frontmatter.** Users can edit; the next reflect pass regroups.
 - **Recursion guard via env var.** `AGENT_JOURNAL_SESSION=1` prevents the journal-writing session from journaling itself. The hook sets this; `--print` sessions DO fire SessionEnd hooks.
 - **`set -euo pipefail` + pipes need `|| true`.** macOS bash 3.2 — `ls|head` causes SIGPIPE death under pipefail. All pipes in hook scripts use `|| true`.
+- **`find` not `ls` for JSONL discovery.** The `ls -t ~/.claude/projects/*/*.jsonl` glob fails with "argument list too long" at ~14k session files. Hook uses `find | xargs stat | sort` instead.
+- **Weekly catch-up backfills missed journals.** Hook can miss sessions (reboots, crashes, hook failures). The catch-up script runs Sunday 3am, finds unjournaled sessions from the past 7 days, and journals them with throttled concurrency (max 3).
 - **Decisions are append-only in thread docs.** Key Decisions section grows; old decisions are never removed.
 - **Voice: nat-write skill required.** No AI summary voice. Direct, concrete, parenthetical asides, honest about mess.
 - **Transcript extraction is inlined.** The jq pipeline lives directly in the journal skill so there's no dependency on script paths at runtime. The standalone script is kept for manual use.
@@ -70,4 +74,6 @@ $OBSIDIAN_VAULT/Agent Journals/
 
 - Hook debug log: `/tmp/journal-hook-debug.log`
 - Journal session output: `/tmp/agent-journal-last.log`
+- Catch-up log: `/tmp/journal-catchup.log`
+- Per-session catch-up output: `/tmp/journal-catchup-<session-prefix>.log`
 - Check if hook fired: `cat /tmp/journal-hook-debug.log | tail -10`
