@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Session-end hook: launches a new Claude session to write a journal entry.
-# Skips if this is already a journal-writing session (recursion guard).
+# Only journals interactive CLI sessions — skips subagents, --print sessions,
+# and journal-writing sessions (recursion guard).
 
 set -euo pipefail
 
 DEBUG_LOG="/tmp/journal-hook-debug.log"
+VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') === SessionEnd hook fired ===" >> "$DEBUG_LOG"
 echo "  PID=$$  PPID=$PPID" >> "$DEBUG_LOG"
@@ -28,14 +30,35 @@ if [ -z "$LATEST_JSONL" ]; then
   exit 0
 fi
 
+# Only journal interactive CLI sessions — skip subagents and --print invocations
+ENTRYPOINT=$(python3 -c "
+import json
+with open('$LATEST_JSONL') as f:
+    for line in f:
+        d = json.loads(line)
+        if d.get('type') == 'attachment':
+            print(d.get('entrypoint', 'unknown'))
+            break
+" 2>/dev/null || echo "unknown")
+
+echo "  ENTRYPOINT=$ENTRYPOINT" >> "$DEBUG_LOG"
+
+if [ "$ENTRYPOINT" != "cli" ] && [ "$ENTRYPOINT" != "claude-desktop" ]; then
+  echo "  Skipping: non-interactive session (entrypoint=$ENTRYPOINT)" >> "$DEBUG_LOG"
+  echo '{"continue": true}'
+  exit 0
+fi
+
 # Extract session ID for logging
 SESSION_ID=$(head -1 "$LATEST_JSONL" | jq -r '.sessionId // "unknown"' 2>/dev/null || echo "unknown")
 echo "  SESSION_ID=$SESSION_ID" >> "$DEBUG_LOG"
 echo "  claude path: $(which claude 2>/dev/null || echo 'NOT FOUND')" >> "$DEBUG_LOG"
 
 # Launch journal-writing session in background
-# The AGENT_JOURNAL_SESSION env var prevents recursion
-AGENT_JOURNAL_SESSION=1 nohup claude --print --dangerously-skip-permissions --add-dir "$HOME" -p "Use the /journal skill to write a journal entry for session at: $LATEST_JSONL" \
+# Scope --add-dir to just what's needed: transcripts and vault
+AGENT_JOURNAL_SESSION=1 nohup claude --print --dangerously-skip-permissions \
+  --add-dir ~/.claude/projects --add-dir "$VAULT" \
+  -p "Use the /journal skill to write a journal entry for session at: $LATEST_JSONL" \
   > /tmp/agent-journal-last.log 2>&1 &
 CHILD_PID=$!
 disown

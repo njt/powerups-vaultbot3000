@@ -62,7 +62,10 @@ $OBSIDIAN_VAULT/Agent Journals/
 - **Every session gets a journal.** Trivial sessions get short entries. The reflection layer filters signal from noise.
 - **Threads are intent-based, not path-based.** "Meeting Transcription Pipeline" not "/Users/gnat/Source".
 - **Thread names are proposed by the journal skill in session frontmatter.** Users can edit; the next reflect pass regroups.
+- **Only interactive sessions get journaled.** The hook checks the JSONL `entrypoint` field and only journals `cli` and `claude-desktop` sessions. Subagents (`sdk-cli`) and `--print` invocations are skipped — they're 90%+ of sessions but low-signal for journaling. The catch-up script applies the same filter.
 - **Recursion guard via env var.** `AGENT_JOURNAL_SESSION=1` prevents the journal-writing session from journaling itself. The hook sets this; `--print` sessions DO fire SessionEnd hooks.
+- **Narrowed `--add-dir` scope.** Background claude gets `--add-dir ~/.claude/projects --add-dir "$VAULT"` instead of `--add-dir $HOME`. Limits access to just transcripts and the vault.
+- **Secrets redaction in journal skill.** The skill explicitly scans for and omits API keys, passwords, tokens, and credentials from journal entries.
 - **`set -euo pipefail` + pipes need `|| true`.** macOS bash 3.2 — `ls|head` causes SIGPIPE death under pipefail. All pipes in hook scripts use `|| true`.
 - **`find` not `ls` for JSONL discovery.** The `ls -t ~/.claude/projects/*/*.jsonl` glob fails with "argument list too long" at ~14k session files. Hook uses `find | xargs stat | sort` instead.
 - **Weekly catch-up backfills missed journals.** Hook can miss sessions (reboots, crashes, hook failures). The catch-up script runs Sunday 3am, finds unjournaled sessions from the past 7 days, and journals them with throttled concurrency (max 3).

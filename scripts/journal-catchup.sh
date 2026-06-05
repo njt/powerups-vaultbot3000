@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Weekly catch-up: find unjournaled sessions from the past 7 days and journal them.
-# Intended to run via cron to catch sessions missed by the session-end hook
-# (reboots, crashes, hook failures).
+# Weekly catch-up: find unjournaled interactive sessions from the past 7 days
+# and journal them. Intended to run via cron to catch sessions missed by the
+# session-end hook (reboots, crashes, hook failures).
+# Skips subagent/--print sessions (entrypoint != cli/claude-desktop).
 
 set -euo pipefail
 
@@ -17,18 +18,32 @@ echo "$(date '+%Y-%m-%d %H:%M:%S') === Journal catch-up started ===" >> "$LOG"
 JOURNALED=$(grep -rh "^session:" "$SESSIONS_DIR"/*.md 2>/dev/null | sed 's/session: //' | sort -u)
 echo "  Found $(echo "$JOURNALED" | wc -l | tr -d ' ') existing journals" >> "$LOG"
 
-# 2. Find JSONL files from the past 7 days, skip subagent files, skip already-journaled
+# 2. Find JSONL files from the past 7 days, skip non-interactive/already-journaled
 QUEUE=()
 while IFS= read -r jsonl; do
   [ -z "$jsonl" ] && continue
   fname=$(basename "$jsonl" .jsonl)
 
-  # Skip subagent files
+  # Skip subagent files (in subagents/ subdirectories)
   [[ "$fname" == agent-* ]] && continue
 
   # Skip trivial sessions (<50 lines)
   lines=$(wc -l < "$jsonl" 2>/dev/null | tr -d ' ')
   [ "$lines" -lt 50 ] && continue
+
+  # Skip non-interactive sessions (subagents, --print invocations)
+  entrypoint=$(python3 -c "
+import json
+with open('$jsonl') as f:
+    for line in f:
+        d = json.loads(line)
+        if d.get('type') == 'attachment':
+            print(d.get('entrypoint', 'unknown'))
+            break
+" 2>/dev/null || echo "unknown")
+  if [ "$entrypoint" != "cli" ] && [ "$entrypoint" != "claude-desktop" ]; then
+    continue
+  fi
 
   # Skip already-journaled sessions (match 8-char prefix)
   prefix="${fname:0:8}"
@@ -39,7 +54,7 @@ while IFS= read -r jsonl; do
   QUEUE+=("$jsonl")
 done < <(find "$PROJECTS_DIR" -maxdepth 2 -name "*.jsonl" -type f -mtime -7 2>/dev/null)
 
-echo "  Found ${#QUEUE[@]} unjournaled sessions to process" >> "$LOG"
+echo "  Found ${#QUEUE[@]} unjournaled interactive sessions to process" >> "$LOG"
 
 if [ ${#QUEUE[@]} -eq 0 ]; then
   echo "  Nothing to do" >> "$LOG"
@@ -47,12 +62,14 @@ if [ ${#QUEUE[@]} -eq 0 ]; then
 fi
 
 # 3. Process each unjournaled session, throttling concurrency
+# Scope --add-dir to just what's needed: transcripts and vault
 running=0
 for jsonl in "${QUEUE[@]}"; do
   sid=$(basename "$jsonl" .jsonl)
   echo "  Journaling: ${sid:0:8}" >> "$LOG"
 
-  AGENT_JOURNAL_SESSION=1 nohup claude --print --dangerously-skip-permissions --add-dir "$HOME" \
+  AGENT_JOURNAL_SESSION=1 nohup claude --print --dangerously-skip-permissions \
+    --add-dir ~/.claude/projects --add-dir "$VAULT" \
     -p "Use the /journal skill to write a journal entry for session at: $jsonl" \
     > "/tmp/journal-catchup-${sid:0:8}.log" 2>&1 &
 

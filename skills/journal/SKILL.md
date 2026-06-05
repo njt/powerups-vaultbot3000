@@ -72,15 +72,17 @@ If no session is specified, journal the current session (read its own JSONL).
 
    Read the output to understand what happened in the session.
 
-3. **De minimis check.** If the session has no substance worth recording — a test ping, a single trivial question, an accidental start with no real work — skip writing a journal. Just output "Skipping: session too trivial to journal" and stop. Use your judgment; a short session with a meaningful decision or insight is still worth capturing.
+3. **Redact secrets.** Before writing anything, scan the transcript for API keys, passwords, tokens, credentials, connection strings, or other secrets. Never include these in the journal entry. If a secret is relevant to the narrative (e.g. "configured the API key"), mention the action without reproducing the value.
 
-4. **Get session metadata.** Extract the session ID, project path, and start time from the JSONL:
+4. **De minimis check.** If the session has no substance worth recording — a test ping, a single trivial question, an accidental start with no real work — skip writing a journal. Just output "Skipping: session too trivial to journal" and stop. Use your judgment; a short session with a meaningful decision or insight is still worth capturing.
+
+5. **Get session metadata.** Extract the session ID, project path, and start time from the JSONL:
 
    ```bash
    head -1 <path-to-jsonl> | jq '{sessionId, cwd, timestamp}'
    ```
 
-5. **Check for existing journals today.** List files matching today's date in Sessions/ to determine the letter suffix:
+6. **Check for existing journals today.** List files matching today's date in Sessions/ to determine the letter suffix:
 
    ```bash
    ls "$VAULT"/"Agent Journals"/Sessions/$(date +%Y-%m-%d)* 2>/dev/null
@@ -88,7 +90,7 @@ If no session is specified, journal the current session (read its own JSONL).
 
    If no files: no suffix. If files exist: use next letter (a, b, c...).
 
-6. **Write the journal.** Use notesmd create to write the journal entry. The content must follow this exact format:
+7. **Write the journal.** Use notesmd create to write the journal entry. The content must follow this exact format:
 
    **Frontmatter:**
    ```yaml
@@ -130,7 +132,7 @@ If no session is specified, journal the current session (read its own JSONL).
    - Only include if there are genuine ideas (skip section if empty)
    ```
 
-7. **Write the file:**
+8. **Write the file:**
 
    ```bash
    notesmd create "Agent Journals/Sessions/<filename>" --content "<content>"
