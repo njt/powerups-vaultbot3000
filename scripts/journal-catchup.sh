@@ -16,7 +16,7 @@ MAX_CONCURRENT=3
 echo "$(date '+%Y-%m-%d %H:%M:%S') === Journal catch-up started ===" >> "$LOG"
 
 # 1. Collect session IDs already journaled
-JOURNALED=$(find "$SESSIONS_DIR" -maxdepth 1 -name "*.md" -print0 2>/dev/null | xargs -0 grep -h "^session:" 2>/dev/null | sed 's/session: //' | sort -u || true)
+JOURNALED=$(find "$SESSIONS_DIR" -maxdepth 1 -name "*.md" -print0 2>/dev/null | xargs -0 grep -h "^session:" /dev/null 2>/dev/null | sed 's/session: //' | sort -u || true)
 if [ -z "$JOURNALED" ]; then
   JOURNAL_COUNT=0
 else
@@ -47,15 +47,15 @@ with open(sys.argv[1]) as f:
     continue
   fi
 
-  # Atomically claim this session — skip if hook or another catch-up already has it
+  # Skip already-journaled sessions (match full ID or legacy 8-char prefix)
   prefix="${fname:0:8}"
-  LOCK_DIR="/tmp/journal-lock-${prefix}"
-  if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+  if echo "$JOURNALED" | grep -q "^${fname}$\|^${prefix}$" 2>/dev/null; then
     continue
   fi
 
-  # Skip already-journaled sessions (match full session ID)
-  if echo "$JOURNALED" | grep -q "^${fname}$" 2>/dev/null; then
+  # Atomically claim this session — skip if hook or another catch-up already has it
+  LOCK_DIR="/tmp/journal-lock-${prefix}"
+  if ! mkdir "$LOCK_DIR" 2>/dev/null; then
     continue
   fi
 

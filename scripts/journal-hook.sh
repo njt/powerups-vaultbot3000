@@ -64,7 +64,9 @@ fi
 echo "  claude path: $(which claude 2>/dev/null || echo 'NOT FOUND')" >> "$DEBUG_LOG"
 
 # Claim this session to prevent catch-up from duplicating
-LOCK_DIR="/tmp/journal-lock-${SESSION_ID:0:8}"
+# Use filename prefix (same derivation as catch-up) for consistent lock keys
+JSONL_FNAME=$(basename "$LATEST_JSONL" .jsonl)
+LOCK_DIR="/tmp/journal-lock-${JSONL_FNAME:0:8}"
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
   echo "  Skipping: already being journaled (lock exists)" >> "$DEBUG_LOG"
   echo '{"continue": true}'
