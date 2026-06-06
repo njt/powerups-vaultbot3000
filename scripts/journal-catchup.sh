@@ -45,9 +45,8 @@ with open('$jsonl') as f:
     continue
   fi
 
-  # Skip already-journaled sessions (match 8-char prefix)
-  prefix="${fname:0:8}"
-  if echo "$JOURNALED" | grep -q "^${prefix}$" 2>/dev/null; then
+  # Skip already-journaled sessions (match full session ID)
+  if echo "$JOURNALED" | grep -q "^${fname}$" 2>/dev/null; then
     continue
   fi
 
@@ -67,12 +66,13 @@ fi
 PIDS=()
 for jsonl in "${QUEUE[@]}"; do
   sid=$(basename "$jsonl" .jsonl)
-  echo "  Journaling: ${sid:0:8}" >> "$LOG"
+  prefix="${sid:0:8}"
+  echo "  Journaling: $prefix" >> "$LOG"
 
   AGENT_JOURNAL_SESSION=1 nohup claude --print --dangerously-skip-permissions \
     --add-dir ~/.claude/projects --add-dir "$VAULT" \
     -p "Use the /journal skill to write a journal entry for session at: $jsonl" \
-    > "/tmp/journal-catchup-${sid:0:8}.log" 2>&1 &
+    > "/tmp/journal-catchup-${prefix}.log" 2>&1 &
   PIDS+=($!)
 
   if [ "${#PIDS[@]}" -ge "$MAX_CONCURRENT" ]; then
