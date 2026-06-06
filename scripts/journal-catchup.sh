@@ -15,7 +15,7 @@ MAX_CONCURRENT=3
 echo "$(date '+%Y-%m-%d %H:%M:%S') === Journal catch-up started ===" >> "$LOG"
 
 # 1. Collect session IDs already journaled
-JOURNALED=$(grep -rh "^session:" "$SESSIONS_DIR"/*.md 2>/dev/null | sed 's/session: //' | sort -u)
+JOURNALED=$(grep -rh "^session:" "$SESSIONS_DIR"/*.md 2>/dev/null | sed 's/session: //' | sort -u || true)
 echo "  Found $(echo "$JOURNALED" | wc -l | tr -d ' ') existing journals" >> "$LOG"
 
 # 2. Find JSONL files from the past 7 days, skip non-interactive/already-journaled
