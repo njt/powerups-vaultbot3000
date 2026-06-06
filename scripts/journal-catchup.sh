@@ -9,6 +9,7 @@ set -euo pipefail
 LOG="/tmp/journal-catchup.log"
 VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
 SESSIONS_DIR="$VAULT/Agent Journals/Sessions"
+mkdir -p "$SESSIONS_DIR"
 PROJECTS_DIR="$HOME/.claude/projects"
 MAX_CONCURRENT=3
 
