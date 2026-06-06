@@ -33,14 +33,14 @@ fi
 
 # Only journal interactive CLI sessions — skip subagents and --print invocations
 ENTRYPOINT=$(python3 -c "
-import json
-with open('$LATEST_JSONL') as f:
+import json, sys
+with open(sys.argv[1]) as f:
     for line in f:
         d = json.loads(line)
         if d.get('type') == 'attachment':
             print(d.get('entrypoint', 'unknown'))
             break
-" 2>/dev/null || echo "unknown")
+" "$LATEST_JSONL" 2>/dev/null || echo "unknown")
 
 echo "  ENTRYPOINT=$ENTRYPOINT" >> "$DEBUG_LOG"
 

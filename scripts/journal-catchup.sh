@@ -33,14 +33,14 @@ while IFS= read -r jsonl; do
 
   # Skip non-interactive sessions (subagents, --print invocations)
   entrypoint=$(python3 -c "
-import json
-with open('$jsonl') as f:
+import json, sys
+with open(sys.argv[1]) as f:
     for line in f:
         d = json.loads(line)
         if d.get('type') == 'attachment':
             print(d.get('entrypoint', 'unknown'))
             break
-" 2>/dev/null || echo "unknown")
+" "$jsonl" 2>/dev/null || echo "unknown")
   if [ "$entrypoint" != "cli" ] && [ "$entrypoint" != "claude-desktop" ]; then
     continue
   fi
