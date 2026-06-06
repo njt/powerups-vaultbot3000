@@ -49,7 +49,7 @@ with open(sys.argv[1]) as f:
 
   # Skip already-journaled sessions (match full ID or legacy 8-char prefix)
   prefix="${fname:0:8}"
-  if echo "$JOURNALED" | grep -q "^${fname}$\|^${prefix}$" 2>/dev/null; then
+  if echo "$JOURNALED" | grep -E -q "^${fname}$|^${prefix}$" 2>/dev/null; then
     continue
   fi
 
