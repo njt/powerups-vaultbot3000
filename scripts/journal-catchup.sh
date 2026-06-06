@@ -51,8 +51,14 @@ with open(sys.argv[1]) as f:
     continue
   fi
 
-  # Skip already-journaled sessions (match 8-char prefix)
+  # Skip if hook already claimed this session
   prefix="${fname:0:8}"
+  LOCK_DIR="/tmp/journal-lock-${prefix}"
+  if [ -d "$LOCK_DIR" ]; then
+    continue
+  fi
+
+  # Skip already-journaled sessions (match 8-char prefix)
   if echo "$JOURNALED" | grep -q "^${prefix}$" 2>/dev/null; then
     continue
   fi
