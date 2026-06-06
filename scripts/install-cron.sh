@@ -9,6 +9,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_BIN=$(which claude 2>/dev/null || echo "$HOME/.claude/local/claude")
+
+echo "Note: Cron jobs will reference scripts at: $SCRIPT_DIR"
+echo "      If you move this directory, re-run install-cron.sh."
 VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
 
 CATCHUP_CMD="0 3 * * 0 OBSIDIAN_VAULT=\"$VAULT\" $SCRIPT_DIR/journal-catchup.sh >> /tmp/journal-catchup.log 2>&1"

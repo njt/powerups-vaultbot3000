@@ -111,6 +111,8 @@ mkdir -p ~/obsidian/"Agent Journals"/{Sessions,Threads,Weekly}
 ./scripts/install-cron.sh
 ```
 
+> **Note:** The cron jobs reference scripts in this repo's current location. If you move the repo, re-run `./scripts/install-cron.sh`.
+
 Add the session-end hook and vault path to `~/.claude/settings.json`:
 
 ```json
