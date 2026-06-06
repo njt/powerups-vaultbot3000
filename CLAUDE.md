@@ -67,6 +67,7 @@ $OBSIDIAN_VAULT/Agent Journals/
 - **Narrowed `--add-dir` scope.** Background claude gets `--add-dir ~/.claude/projects --add-dir "$VAULT"` instead of `--add-dir $HOME`. Limits access to just transcripts and the vault.
 - **Secrets redaction in journal skill.** The skill explicitly scans for and omits API keys, passwords, tokens, and credentials from journal entries.
 - **`set -euo pipefail` + pipes need `|| true`.** macOS bash 3.2 — `ls|head` causes SIGPIPE death under pipefail. All pipes in hook scripts use `|| true`.
+- **JSONL discovery by session ID, not "most recent."** The hook uses `CLAUDE_CODE_SESSION_ID` (set by Claude Code in the hook environment) to find the exact JSONL for the ending session, eliminating a race where two simultaneous session-end hooks would both pick the same file. Falls back to "most recently modified" heuristic if the env var is unavailable (older Claude Code versions); in that case catch-up covers the gap.
 - **`find` not `ls` for JSONL discovery.** The `ls -t ~/.claude/projects/*/*.jsonl` glob fails with "argument list too long" at ~14k session files. Hook uses `find | xargs stat | sort` instead.
 - **Weekly catch-up backfills missed journals.** Hook can miss sessions (reboots, crashes, hook failures). The catch-up script runs Sunday 3am, finds unjournaled sessions from the past 7 days, and journals them with throttled concurrency (max 3).
 - **Decisions are append-only in thread docs.** Key Decisions section grows; old decisions are never removed.
