@@ -98,7 +98,7 @@ If no session is specified, journal the current session (read its own JSONL).
    **Frontmatter:**
    ```yaml
    ---
-   session: <8-char session ID prefix>
+   session: <full session ID>
    date: YYYY-MM-DD
    project: <working directory path>
    threads:
