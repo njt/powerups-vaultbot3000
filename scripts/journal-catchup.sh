@@ -63,7 +63,8 @@ fi
 
 # 3. Process each unjournaled session, throttling concurrency
 # Scope --add-dir to just what's needed: transcripts and vault
-running=0
+# PID tracking for bash 3.2 compat (wait -n requires bash 4.3+)
+PIDS=()
 for jsonl in "${QUEUE[@]}"; do
   sid=$(basename "$jsonl" .jsonl)
   echo "  Journaling: ${sid:0:8}" >> "$LOG"
@@ -72,13 +73,13 @@ for jsonl in "${QUEUE[@]}"; do
     --add-dir ~/.claude/projects --add-dir "$VAULT" \
     -p "Use the /journal skill to write a journal entry for session at: $jsonl" \
     > "/tmp/journal-catchup-${sid:0:8}.log" 2>&1 &
+  PIDS+=($!)
 
-  running=$((running + 1))
-  if [ "$running" -ge "$MAX_CONCURRENT" ]; then
-    wait -n 2>/dev/null || true
-    running=$((running - 1))
+  if [ "${#PIDS[@]}" -ge "$MAX_CONCURRENT" ]; then
+    wait "${PIDS[0]}" 2>/dev/null || true
+    PIDS=("${PIDS[@]:1}")
   fi
 done
 
-wait
+for pid in "${PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
 echo "$(date '+%Y-%m-%d %H:%M:%S') === Journal catch-up finished (${#QUEUE[@]} sessions) ===" >> "$LOG"

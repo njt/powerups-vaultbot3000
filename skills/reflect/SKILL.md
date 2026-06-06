@@ -75,7 +75,7 @@ If the user has a custom writing voice skill (e.g. a `nat-write` or similar styl
    <summary of what happened in the most recent session(s)>
    ```
 
-   **Existing thread** (file already exists): update the top sections (Current Status, Open Questions, Key Decisions) based on new session data. Prepend a new dated update section below the --- separator. Add new session wikilinks to the sessions frontmatter list. Update last_updated and status.
+   **Existing thread** (file already exists): update the top sections (Current Status, Open Questions) based on new session data. Key Decisions is append-only — add new decisions but never remove old ones. Prepend a new dated update section below the --- separator. Add new session wikilinks to the sessions frontmatter list. Update last_updated and status.
 
 5. **Infer thread status:**
    - active — sessions in the last 7 days
