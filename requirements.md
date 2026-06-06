@@ -518,10 +518,10 @@ Success looks like: a searchable, browsable archive of what you did in each sess
 - **Rationale:** Each Claude --print process consumes API credits and system resources. Unbounded parallelism could overwhelm both.
 - **Affects:** FR-12, NF-03
 
-### D-13: Catch-up skips sessions under 50 lines
+### D-13: ~~Catch-up skips sessions under 50 lines~~ (Reversed)
 - **Owner:** LLM
-- **Decision:** The catch-up script skips JSONL files with fewer than 50 lines as a pre-filter before the semantic de minimis check.
-- **Rationale:** Very short transcripts are almost certainly trivial. This avoids spinning up a Claude process just to decide a session isn't worth journaling.
+- **Decision:** ~~The catch-up script skips JSONL files with fewer than 50 lines as a pre-filter before the semantic de minimis check.~~ Removed — the journal skill's semantic de minimis check is the right place for this decision. Short sessions can contain meaningful content (e.g., a critical decision in 30 lines).
+- **Rationale:** The blunt line-count filter could skip short-but-meaningful sessions. The skill already has a semantic check; duplicating the filter adds complexity without value.
 - **Affects:** FR-12
 
 ### D-14: Plugin writes plain markdown; Obsidian is not required
