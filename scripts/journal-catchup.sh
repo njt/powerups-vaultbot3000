@@ -27,10 +27,6 @@ while IFS= read -r jsonl; do
   # Skip subagent files (in subagents/ subdirectories)
   [[ "$fname" == agent-* ]] && continue
 
-  # Skip trivial sessions (<50 lines)
-  lines=$(wc -l < "$jsonl" 2>/dev/null | tr -d ' ')
-  [ "$lines" -lt 50 ] && continue
-
   # Skip non-interactive sessions (subagents, --print invocations)
   entrypoint=$(python3 -c "
 import json
