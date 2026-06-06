@@ -54,6 +54,13 @@ fi
 # Extract session ID for logging
 SESSION_ID=$(head -1 "$LATEST_JSONL" | jq -r '.sessionId // "unknown"' 2>/dev/null || echo "unknown")
 echo "  SESSION_ID=$SESSION_ID" >> "$DEBUG_LOG"
+
+if [ "$SESSION_ID" = "unknown" ]; then
+  echo "  Skipping: could not extract session ID" >> "$DEBUG_LOG"
+  echo '{"continue": true}'
+  exit 0
+fi
+
 echo "  claude path: $(which claude 2>/dev/null || echo 'NOT FOUND')" >> "$DEBUG_LOG"
 
 # Claim this session to prevent catch-up from duplicating

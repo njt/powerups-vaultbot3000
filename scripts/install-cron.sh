@@ -19,7 +19,7 @@ DIGEST_CMD="0 5 * * 0 AGENT_JOURNAL_SESSION=1 $CLAUDE_BIN --print --dangerously-
 
 # Remove any existing vaultbot entries, then add both
 # grep -v returns exit 1 on no match — || true prevents pipefail death
-(crontab -l 2>/dev/null | { grep -v 'journal-catchup' || true; } | { grep -v '/reflect.*weekly' || true; } ; echo "$CATCHUP_CMD"; echo "$DIGEST_CMD") | crontab -
+({ crontab -l 2>/dev/null || true; } | { grep -v 'journal-catchup' || true; } | { grep -v '/reflect.*weekly' || true; } ; echo "$CATCHUP_CMD"; echo "$DIGEST_CMD") | crontab -
 
 echo "Installed weekly cron jobs:"
 echo "  Vault: $VAULT"
