@@ -72,6 +72,7 @@ $OBSIDIAN_VAULT/Agent Journals/
 - **Decisions are append-only in thread docs.** Key Decisions section grows; old decisions are never removed.
 - **Voice: direct, not AI summary.** Skills use a custom voice skill if the user has one, otherwise default to a direct, concrete style. No AI summary voice.
 - **Transcript extraction is inlined.** The jq pipeline lives directly in the journal skill so there's no dependency on script paths at runtime. The standalone script is kept for manual use.
+- **Session lock prevents duplicate journals.** A lock directory (`/tmp/journal-lock-<8-char-prefix>`) is created atomically via `mkdir` before journaling. Both the hook and catch-up check for the lock. Locks persist in `/tmp` (cleared on reboot) — this is intentional, since the lock doubles as a "already journaled" signal for catch-up.
 
 ## Debugging
 
