@@ -33,7 +33,7 @@ If no session is specified, journal the current session (read its own JSONL).
 1. **Find the session transcript.** If a path was provided, use it. Otherwise, find the most recent JSONL in ~/.claude/projects/:
 
    ```bash
-   ls -t ~/.claude/projects/*/*.jsonl | head -1
+   find ~/.claude/projects -maxdepth 2 -name "*.jsonl" -type f -print0 | xargs -0 stat -f '%m %N' | sort -rn | head -1 | cut -d' ' -f2-
    ```
 
 2. **Extract readable conversation.** Run this jq pipeline to get a readable transcript:

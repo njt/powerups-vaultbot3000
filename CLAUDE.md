@@ -59,7 +59,7 @@ $OBSIDIAN_VAULT/Agent Journals/
 
 ## Key Design Decisions
 
-- **Every session gets a journal.** Trivial sessions get short entries. The reflection layer filters signal from noise.
+- **Every interactive session gets a journal unless trivial.** Test pings and accidental starts are skipped. The de minimis check is semantic, not a line count.
 - **Threads are intent-based, not path-based.** "Meeting Transcription Pipeline" not "/Users/someone/Source".
 - **Thread names are proposed by the journal skill in session frontmatter.** Users can edit; the next reflect pass regroups.
 - **Only interactive sessions get journaled.** The hook checks the JSONL `entrypoint` field and only journals `cli` and `claude-desktop` sessions. Subagents (`sdk-cli`) and `--print` invocations are skipped — they're 90%+ of sessions but low-signal for journaling. The catch-up script applies the same filter.
