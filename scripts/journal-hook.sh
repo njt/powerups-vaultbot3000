@@ -7,6 +7,7 @@ set -euo pipefail
 
 DEBUG_LOG="/tmp/journal-hook-debug.log"
 VAULT="${OBSIDIAN_VAULT:-$HOME/obsidian}"
+mkdir -p "$VAULT/Agent Journals/Sessions"
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') === SessionEnd hook fired ===" >> "$DEBUG_LOG"
 echo "  PID=$$  PPID=$PPID" >> "$DEBUG_LOG"
