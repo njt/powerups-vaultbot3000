@@ -15,7 +15,8 @@ CATCHUP_CMD="0 3 * * 0 OBSIDIAN_VAULT=\"$VAULT\" $SCRIPT_DIR/journal-catchup.sh 
 DIGEST_CMD="0 5 * * 0 AGENT_JOURNAL_SESSION=1 $CLAUDE_BIN --print --dangerously-skip-permissions --add-dir ~/.claude/projects --add-dir \"$VAULT\" -p \"Use the /reflect skill with 'weekly' argument to generate this week's digest\" >> /tmp/weekly-digest.log 2>&1"
 
 # Remove any existing vaultbot entries, then add both
-(crontab -l 2>/dev/null | grep -v 'journal-catchup' | grep -v '/reflect.*weekly' ; echo "$CATCHUP_CMD"; echo "$DIGEST_CMD") | crontab -
+# grep -v returns exit 1 on no match — || true prevents pipefail death
+(crontab -l 2>/dev/null | { grep -v 'journal-catchup' || true; } | { grep -v '/reflect.*weekly' || true; } ; echo "$CATCHUP_CMD"; echo "$DIGEST_CMD") | crontab -
 
 echo "Installed weekly cron jobs:"
 echo "  Vault: $VAULT"
