@@ -1,7 +1,7 @@
 {
   "name": "powerups-vaultbot3000",
   "description": "Automated journaling and reflection for Claude Code sessions — writes structured records into an Obsidian vault with thread tracking and weekly digests",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "Nat Torkington"
   },
